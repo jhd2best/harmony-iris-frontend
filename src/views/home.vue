@@ -239,6 +239,7 @@ export default {
       this.eth2hmySwapStep = 3
       this.eth2hmySwapStepIcon[2] = '' 
       this.eth2hmySwapStepIcon[3] = 'el-icon-loading'
+      let trans = await this.hb.handleEthProof(proof)
       try {
         // let options = {gasPrice: contractConfig.oneGasPrice, gasLimit: contractConfig.oneGasLimit, waitConfirm: true}
         // await trans.send(options)
@@ -266,13 +267,13 @@ export default {
       // approve token locking for ONE wallet
       this.hmy2ethSwapStep = 0
       this.hmy2ethSwapStepIcon[0] = 'el-icon-loading'
-      await this.hb.approve(contractConfig.hmyBridge, this.hmy2ethForm.rbtAmount)
+      await this.hb.approve(contractConfig.hmyBridge, eb.web3.utils.toWei(this.hmy2ethForm.rbtAmount))
       
       // locking origin token on Harmony
       this.hmy2ethSwapStep = 1
       this.hmy2ethSwapStepIcon[0] = '' 
       this.hmy2ethSwapStepIcon[1] = 'el-icon-loading'
-      let locked = await this.hb.lock(this.ethAddress, this.hmy2ethForm.rbtAmount)
+      let locked = await this.hb.lock(this.ethAddress, eb.web3.utils.toWei(this.hmy2ethForm.rbtAmount))
       console.log("token locked: ", locked)
 
       // handle proof data on Ethereum
@@ -344,7 +345,7 @@ export default {
       .then((res) => {
         this.oneBalance = fromWei(hexToNumber(res.result), Units.one)
       })
-      this.oneRBTBalance = await this.hb.getBalance(this.oneAddress)
+      this.oneRBTBalance = fromWei(await this.hb.getBalance(this.oneAddress), Units.one)
     },
     async refreshEthBalance() {
       eb.web3.eth.getBalance(this.ethAddress).then((res) => {
