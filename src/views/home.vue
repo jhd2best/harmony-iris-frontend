@@ -125,10 +125,15 @@
 import { HarmonyExtension } from '@harmony-js/core'
 import { ChainID, ChainType, fromWei, Units, hexToNumber } from '@harmony-js/utils'
 import { contractConfig } from '../config.js'
-
+HarmonyExtension;ChainID;ChainType;
 const EthBridge = require("../lib/EthBridge");
 const eb = new EthBridge(contractConfig.ercToken, contractConfig.ethBridge)
 const HmyBridge = require("../lib/HmyBridge");
+
+const { TESTNET } = require("../js/globalConfig.js")
+const { HmySDK  }  = require('../js/hmy.js')
+
+const hmySDK = new HmySDK(TESTNET, "TESTNET")
 
 
 export default {
@@ -163,15 +168,20 @@ export default {
     }
   },
   methods: {
-    initOneWallet() {
+    async initOneWallet() {
       // one wallet
-      if (typeof window.onewallet !== 'undefined') {
+      if (typeof window.harmony !== 'undefined') {
         this.isOneWalletTrying = false
+        /*
         this.harmonyEx = new HarmonyExtension(window.onewallet, {
           chainType: ChainType.Harmony,
           chainId: ChainID.HmyTestnet,
         })
         this.harmonyEx.setProvider(contractConfig.oneNodeUrl)
+        */
+        this.harmonyEx = hmySDK
+        let ret = await this.harmonyEx.login()
+        console.log("ret:", ret)
         this.hb = new HmyBridge(contractConfig.hmyBridge, contractConfig.hrcToken, this.harmonyEx)
       } else {
         console.log('one wallet not found, try again later')
@@ -230,8 +240,11 @@ export default {
       this.eth2hmySwapStepIcon[2] = '' 
       this.eth2hmySwapStepIcon[3] = 'el-icon-loading'
       try {
-        let trans = await this.hb.handleEthProof(proof)
-        console.log("txHash: ", trans)
+        // let options = {gasPrice: contractConfig.oneGasPrice, gasLimit: contractConfig.oneGasLimit, waitConfirm: true}
+        // await trans.send(options)
+        let res = await trans.send(this.$store.txConfig());
+        //let res = window.onewallet.signTransaction(trans)
+        console.log("res: ", res)
       } catch (e) {
         console.error(e)
       }

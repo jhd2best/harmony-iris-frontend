@@ -13,16 +13,20 @@ class HmyBridge {
 
         if (bridgeAddress) {
             this.bridgeAddress = bridgeAddress
-            this.bridgeContract = hmy.contracts.createContract(bridgeJson.abi, bridgeAddress)
+            this.bridgeContract = hmy.ContractAt(bridgeJson.abi, bridgeAddress)
+            window.cc = this.bridgeContract;
+            //this.bridgeContract = hmySDK.ContractAt(bridgeJson.abi, bridgeAddress)
         } else {
-            this.bridgeContract = hmy.contracts.createContract(bridgeJson.abi)
+            window.alert("fuck1!")
+            //this.bridgeContract = hmy.contracts.createContract(bridgeJson.abi)
         }
 
         if (tokenAddress) {
             this.tokenAddress = tokenAddress
-            this.tokenContract = hmy.contracts.createContract(tokenJson.abi, tokenAddress)
+            this.tokenContract = hmy.ContractAt(tokenJson.abi, tokenAddress)
         } else {
-            this.tokenContract = hmy.contracts.createContract(tokenJson.abi)
+            window.alert("fuck2!")
+            //this.tokenContract = hmy.contracts.createContract(tokenJson.abi)
         }
 
         this.proofNode = contractConfig.proofNodeUrl
@@ -39,10 +43,9 @@ class HmyBridge {
         let key = proofData.key
         let proof = proofData.proof
 
-        let options = {gasPrice: this.gasPrice, gasLimit: this.gasLimit, waitConfirm: true}
-        let res = await this.bridgeContract.methods.ExecProof(hash, root, key, proof).send(options)
-        
-        return res.transaction.id
+        let trans = this.bridgeContract.methods.ExecProof(hash, root, key, proof)
+        window.txx = trans;
+        return trans
     }
 
     async getProof(txHash) {
