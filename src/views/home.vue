@@ -346,7 +346,7 @@ export default {
       eb.web3.eth.getBalance(this.ethAddress).then((res) => {
         this.ethBalance = eb.web3.utils.fromWei(res)
       })
-      this.ethRBTBalance = await eb.getBalance(this.ethAddress)
+      this.ethRBTBalance = eb.web3.utils.fromWei(await eb.getBalance(this.ethAddress))
     },
     // shorter address
     shorterAddress(address) {
