@@ -52,10 +52,10 @@
               </div>
               <div class="div-swap-step" v-else>
                 <el-steps direction="vertical" :active="hmy2ethSwapStep" finish-status="success">
-                  <el-step title="approve token locking for ONE wallet" :description="hmy2ethSwapStepDesc[0]" :icon="hmy2ethSwapStepIcon[0]"></el-step>
-                  <el-step title="locking origin token on Harmony" :description="hmy2ethSwapStepDesc[1]" :icon="hmy2ethSwapStepIcon[1]"></el-step>
+                  <el-step title="approve token burnning for ONE wallet" :description="hmy2ethSwapStepDesc[0]" :icon="hmy2ethSwapStepIcon[0]"></el-step>
+                  <el-step title="burnning mint token on Harmony" :description="hmy2ethSwapStepDesc[1]" :icon="hmy2ethSwapStepIcon[1]"></el-step>
                   <el-step title="handle proof data on Ethereum" :description="hmy2ethSwapStepDesc[2]" :icon="hmy2ethSwapStepIcon[2]"></el-step>
-                  <el-step title="minting new token on Ethereum" :description="hmy2ethSwapStepDesc[3]" :icon="hmy2ethSwapStepIcon[3]"></el-step>
+                  <el-step title="unlock token on Ethereum" :description="hmy2ethSwapStepDesc[3]" :icon="hmy2ethSwapStepIcon[3]"></el-step>
                 </el-steps>
                 <div class="div-swap-step-back">
                   <el-button type="success" @click="resetStatus" class="btn-back" :disabled="hmy2ethSwapStep != 4">BACK</el-button>
