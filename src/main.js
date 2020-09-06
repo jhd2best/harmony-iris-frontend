@@ -6,6 +6,7 @@ import VueAxios from 'vue-axios'
 import App from './App.vue'
 import router from './router/index.js'
 import webUtil from './util.js'
+import './js/store'
 
 Vue.config.productionTip = false
 

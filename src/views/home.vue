@@ -125,10 +125,15 @@
 import { HarmonyExtension } from '@harmony-js/core'
 import { ChainID, ChainType, fromWei, Units, hexToNumber } from '@harmony-js/utils'
 import { contractConfig } from '../config.js'
-
+HarmonyExtension;ChainID;ChainType;
 const EthBridge = require("../lib/EthBridge");
 const eb = new EthBridge(contractConfig.ercToken, contractConfig.ethBridge)
 const HmyBridge = require("../lib/HmyBridge");
+
+const { TESTNET } = require("../js/globalConfig.js")
+const { HmySDK  }  = require('../js/hmy.js')
+
+const hmySDK = new HmySDK(TESTNET, "TESTNET")
 
 
 export default {
@@ -163,15 +168,20 @@ export default {
     }
   },
   methods: {
-    initOneWallet() {
+    async initOneWallet() {
       // one wallet
-      if (typeof window.onewallet !== 'undefined') {
+      if (typeof window.harmony !== 'undefined') {
         this.isOneWalletTrying = false
+        /*
         this.harmonyEx = new HarmonyExtension(window.onewallet, {
           chainType: ChainType.Harmony,
           chainId: ChainID.HmyTestnet,
         })
         this.harmonyEx.setProvider(contractConfig.oneNodeUrl)
+        */
+        this.harmonyEx = hmySDK
+        let ret = await this.harmonyEx.login()
+        console.log("ret:", ret)
         this.hb = new HmyBridge(contractConfig.hmyBridge, contractConfig.hrcToken, this.harmonyEx)
       } else {
         console.log('one wallet not found, try again later')
@@ -215,7 +225,7 @@ export default {
       this.eth2hmySwapStep = 1
       this.eth2hmySwapStepIcon[0] = '' 
       this.eth2hmySwapStepIcon[1] = 'el-icon-loading'
-      let locked = await eb.lock(this.hmy.crypto.fromBech32(this.oneAddress), this.eth2hmyForm.rbtAmount)
+      let locked = await eb.lock(this.hb.hmy.crypto.fromBech32(this.oneAddress), this.eth2hmyForm.rbtAmount)
       console.log("token locked: ", locked)
 
       // handle proof data on Harmony
@@ -234,7 +244,8 @@ export default {
       try {
         // let options = {gasPrice: contractConfig.oneGasPrice, gasLimit: contractConfig.oneGasLimit, waitConfirm: true}
         // await trans.send(options)
-        let res = window.onewallet.signTransaction(trans)
+        let res = await trans.send(this.$store.txConfig());
+        //let res = window.onewallet.signTransaction(trans)
         console.log("res: ", res)
       } catch (e) {
         console.log("txHash: ", trans.transaction.id)
