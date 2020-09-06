@@ -39,9 +39,10 @@ class HmyBridge {
         let key = proofData.key
         let proof = proofData.proof
 
-        let trans = await this.bridgeContract.methods.ExecProof(hash, root, key, proof)
+        let options = {gasPrice: this.gasPrice, gasLimit: this.gasLimit, waitConfirm: true}
+        let res = await this.bridgeContract.methods.ExecProof(hash, root, key, proof).send(options)
         
-        return trans
+        return res.transaction.id
     }
 
     async getProof(txHash) {

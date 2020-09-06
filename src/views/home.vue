@@ -11,7 +11,7 @@
             <el-card class="card-swap-form" v-if="currentDirection == 'eth2hmy'">
               <div class="div-swap-form" v-if="eth2hmySwapStep < 0">
                 <el-form ref="form" :model="eth2hmyForm" label-width="80px" label-position="top">
-                  <el-form-item label="RBT Amount">
+                  <el-form-item label="Iris Amount">
                     <el-input v-model="eth2hmyForm.rbtAmount"></el-input>
                   </el-form-item>
                   <el-form-item label="Target ONE Address">
@@ -38,7 +38,7 @@
             <el-card class="card-swap-form" v-if="currentDirection == 'hmy2eth'">
               <div class="div-swap-form" v-if="hmy2ethSwapStep < 0">
                 <el-form ref="form" :model="hmy2ethForm" label-width="80px" label-position="top">
-                  <el-form-item label="RBT Amount">
+                  <el-form-item label="Iris Amount">
                     <el-input v-model="hmy2ethForm.rbtAmount"></el-input>
                   </el-form-item>
                   <el-form-item label="Target ETH Address">
@@ -82,7 +82,7 @@
                 <span class="text-left">ONE</span>
                 <span class="text-right">{{ oneBalance }}</span>
                 <el-divider></el-divider>
-                <span class="text-left">Harmony RBT</span>
+                <span class="text-left">Harmony Iris</span>
                 <span class="text-right">{{ oneRBTBalance }}</span>
               </div>
               <div v-if="oneAddress == ''" class="wallet-login-holder">
@@ -106,7 +106,7 @@
                 <span class="text-left">ETH</span>
                 <span class="text-right">{{ ethBalance }}</span>
                 <el-divider></el-divider>
-                <span class="text-left">Ethereum RBT</span>
+                <span class="text-left">Ethereum Iris</span>
                 <span class="text-right">{{ ethRBTBalance }}</span>
               </div>
               <div v-if="ethAddress == ''" class="wallet-login-holder">
@@ -215,7 +215,7 @@ export default {
       this.eth2hmySwapStep = 1
       this.eth2hmySwapStepIcon[0] = '' 
       this.eth2hmySwapStepIcon[1] = 'el-icon-loading'
-      let locked = await eb.lock(this.hmy.crypto.fromBech32(this.oneAddress), this.eth2hmyForm.rbtAmount)
+      let locked = await eb.lock(this.hb.hmy.crypto.fromBech32(this.oneAddress), this.eth2hmyForm.rbtAmount)
       console.log("token locked: ", locked)
 
       // handle proof data on Harmony
@@ -229,21 +229,16 @@ export default {
       this.eth2hmySwapStep = 3
       this.eth2hmySwapStepIcon[2] = '' 
       this.eth2hmySwapStepIcon[3] = 'el-icon-loading'
-      let trans = await this.hb.handleEthProof(proof)
-      
       try {
-        // let options = {gasPrice: contractConfig.oneGasPrice, gasLimit: contractConfig.oneGasLimit, waitConfirm: true}
-        // await trans.send(options)
-        let res = window.onewallet.signTransaction(trans)
-        console.log("res: ", res)
+        let trans = await this.hb.handleEthProof(proof)
+        console.log("txHash: ", trans)
       } catch (e) {
-        console.log("txHash: ", trans.transaction.id)
-        this.checkHmyTrans(trans.transaction.id)
         console.error(e)
       }
 
-      
-
+      setTimeout(this.checkHmyTrans, 10000)
+    },
+    async checkHmyTrans() {
       this.eth2hmySwapStep = 4
       this.eth2hmySwapStepIcon[3] = ''
       this.eth2hmyForm.rbtAmount = 0
@@ -253,10 +248,6 @@ export default {
       })
       this.refreshOneBalance()
       this.refreshEthBalance()
-    },
-    async checkHmyTrans(txnHash) {
-      let res = await this.hb.hmy.blockchain.getTransactionReceipt({txnHash: txnHash})
-      console.log(res)
     },
     async doHmy2ethSwap() {
       // approve token locking for ONE wallet
