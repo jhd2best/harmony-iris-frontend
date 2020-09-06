@@ -51,7 +51,7 @@
                 </el-form>
               </div>
               <div class="div-swap-step" v-else>
-                <el-steps direction="vertical" :active="hmy2ethSwapStep" finish-status="success">
+                <el-steps direction="vertical" :active="hmy2ethSwapStep" finish-status="success" style="height: 250px;">
                   <el-step title="approve token locking for ONE wallet" :description="hmy2ethSwapStepDesc[0]" :icon="hmy2ethSwapStepIcon[0]"></el-step>
                   <el-step title="locking origin token on Harmony" :description="hmy2ethSwapStepDesc[1]" :icon="hmy2ethSwapStepIcon[1]"></el-step>
                   <el-step title="handle proof data on Ethereum" :description="hmy2ethSwapStepDesc[2]" :icon="hmy2ethSwapStepIcon[2]"></el-step>
