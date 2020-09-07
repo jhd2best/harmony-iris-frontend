@@ -76,12 +76,16 @@ class HmyBridge {
 
     async approve(targetAddr, amount) {
         let options = {gasPrice: this.gasPrice, gasLimit: this.gasLimit}
-        return await this.tokenContract.methods.approve(targetAddr, amount).send(options)
+        let obj = this.tokenContract.methods.approve(targetAddr, amount);
+        window.approve = obj;
+        return await obj.send(options)
     }
 
     async lock(ethAddr, amount) {
         let options = {gasPrice: this.gasPrice, gasLimit: this.gasLimit}
-        let resp = await this.bridgeContract.methods.RainbowBack(this.tokenAddress, ethAddr, amount).send(options)
+        let obj = this.bridgeContract.methods.RainbowBack(this.tokenAddress, ethAddr, amount);
+        let resp = await obj.send(options)
+        window.lock = obj;
         return resp.transaction.id
     }
 }
