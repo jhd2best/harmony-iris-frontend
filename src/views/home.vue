@@ -11,7 +11,7 @@
             <el-card class="card-swap-form" v-if="currentDirection == 'eth2hmy'">
               <div class="div-swap-form" v-if="eth2hmySwapStep < 0">
                 <el-form ref="form" :model="eth2hmyForm" label-width="80px" label-position="top">
-                  <el-form-item label="RBT Amount">
+                  <el-form-item label="Iris Amount">
                     <el-input v-model="eth2hmyForm.rbtAmount"></el-input>
                   </el-form-item>
                   <el-form-item label="Target ONE Address">
@@ -38,7 +38,7 @@
             <el-card class="card-swap-form" v-if="currentDirection == 'hmy2eth'">
               <div class="div-swap-form" v-if="hmy2ethSwapStep < 0">
                 <el-form ref="form" :model="hmy2ethForm" label-width="80px" label-position="top">
-                  <el-form-item label="RBT Amount">
+                  <el-form-item label="Iris Amount">
                     <el-input v-model="hmy2ethForm.rbtAmount"></el-input>
                   </el-form-item>
                   <el-form-item label="Target ETH Address">
@@ -82,7 +82,7 @@
                 <span class="text-left">ONE</span>
                 <span class="text-right">{{ oneBalance }}</span>
                 <el-divider></el-divider>
-                <span class="text-left">Harmony RBT</span>
+                <span class="text-left">Harmony Iris</span>
                 <span class="text-right">{{ oneRBTBalance }}</span>
               </div>
               <div v-if="oneAddress == ''" class="wallet-login-holder">
@@ -106,7 +106,7 @@
                 <span class="text-left">ETH</span>
                 <span class="text-right">{{ ethBalance }}</span>
                 <el-divider></el-divider>
-                <span class="text-left">Ethereum RBT</span>
+                <span class="text-left">Ethereum Iris</span>
                 <span class="text-right">{{ ethRBTBalance }}</span>
               </div>
               <div v-if="ethAddress == ''" class="wallet-login-holder">
@@ -240,7 +240,6 @@ export default {
       this.eth2hmySwapStepIcon[2] = '' 
       this.eth2hmySwapStepIcon[3] = 'el-icon-loading'
       let trans = await this.hb.handleEthProof(proof)
-      
       try {
         // let options = {gasPrice: contractConfig.oneGasPrice, gasLimit: contractConfig.oneGasLimit, waitConfirm: true}
         // await trans.send(options)
@@ -248,13 +247,12 @@ export default {
         //let res = window.onewallet.signTransaction(trans)
         console.log("res: ", res)
       } catch (e) {
-        console.log("txHash: ", trans.transaction.id)
-        this.checkHmyTrans(trans.transaction.id)
         console.error(e)
       }
 
-      
-
+      setTimeout(this.checkHmyTrans, 10000)
+    },
+    async checkHmyTrans() {
       this.eth2hmySwapStep = 4
       this.eth2hmySwapStepIcon[3] = ''
       this.eth2hmyForm.rbtAmount = 0
@@ -265,21 +263,17 @@ export default {
       this.refreshOneBalance()
       this.refreshEthBalance()
     },
-    async checkHmyTrans(txnHash) {
-      let res = await this.hb.hmy.blockchain.getTransactionReceipt({txnHash: txnHash})
-      console.log(res)
-    },
     async doHmy2ethSwap() {
       // approve token locking for ONE wallet
       this.hmy2ethSwapStep = 0
       this.hmy2ethSwapStepIcon[0] = 'el-icon-loading'
-      await this.hb.approve(contractConfig.hmyBridge, this.hmy2ethForm.rbtAmount)
+      await this.hb.approve(contractConfig.hmyBridge, eb.web3.utils.toWei(this.hmy2ethForm.rbtAmount))
       
       // locking origin token on Harmony
       this.hmy2ethSwapStep = 1
       this.hmy2ethSwapStepIcon[0] = '' 
       this.hmy2ethSwapStepIcon[1] = 'el-icon-loading'
-      let locked = await this.hb.lock(this.ethAddress, this.hmy2ethForm.rbtAmount)
+      let locked = await this.hb.lock(this.ethAddress, eb.web3.utils.toWei(this.hmy2ethForm.rbtAmount))
       console.log("token locked: ", locked)
 
       // handle proof data on Ethereum
@@ -351,13 +345,13 @@ export default {
       .then((res) => {
         this.oneBalance = fromWei(hexToNumber(res.result), Units.one)
       })
-      this.oneRBTBalance = await this.hb.getBalance(this.oneAddress)
+      this.oneRBTBalance = fromWei(await this.hb.getBalance(this.oneAddress), Units.one)
     },
     async refreshEthBalance() {
       eb.web3.eth.getBalance(this.ethAddress).then((res) => {
         this.ethBalance = eb.web3.utils.fromWei(res)
       })
-      this.ethRBTBalance = await eb.getBalance(this.ethAddress)
+      this.ethRBTBalance = eb.web3.utils.fromWei(await eb.getBalance(this.ethAddress))
     },
     // shorter address
     shorterAddress(address) {
