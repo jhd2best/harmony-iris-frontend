@@ -4,7 +4,7 @@ import stakingAPIs from './stakingAPIs.json';
 export const MathWallet = 'harmony';
 export const OneWallet = 'onewallet';
 
-let walletActived = MathWallet;
+let walletActived = OneWallet;
 export function switchWallet(wallet){
   console.log("switchWallet:", wallet);
   walletActived = wallet;

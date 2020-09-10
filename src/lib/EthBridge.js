@@ -5,17 +5,11 @@ const { GetProof } = require('eth-proof');
 const { encode } = require('eth-util-lite');
 
 class EthBridge {
-    constructor(tokenAddress, bridgeAddress) {
+    constructor(bridgeAddress) {
         const web3 = new Web3(window.ethereum)
         this.web3 = web3
 
         let tokenJson = require("./BridgedToken.json")
-        if (tokenAddress) {
-            this.tokenAddress = tokenAddress
-            this.tokenContract = new web3.eth.Contract(tokenJson.abi, tokenAddress)
-        } else {
-            this.tokenContract = new web3.eth.Contract(tokenJson.abi)
-        }
         this.tokenJson = tokenJson
         this.userAddress = ''
 
@@ -31,13 +25,32 @@ class EthBridge {
         this.gp = new GetProof(contractConfig.ethNodeUrl)
     }
 
+    setTokenAddress(tokenAddress) {
+        if (tokenAddress != this.tokenAddress) {
+            this.tokenAddress = tokenAddress
+            this.tokenContract = new this.web3.eth.Contract(this.tokenJson.abi, tokenAddress)
+        }
+    }
+
     setUserAddress(address) {
         this.userAddress = address
     }
 
-    async getBalance(addr) {
+    async getTokenInfo(tokenAddress){
+        let tokenContract = this.tokenContract;
+        if(tokenAddress != this.tokenAddress)
+            tokenContract = new this.web3.eth.Contract(this.tokenJson.abi, tokenAddress)
+        const name = await tokenContract.methods.name().call()
+        //const symbol = await this.tokenContract.methods.name().symbol()
+        //const decimals = await this.tokenContract.methods.name().decimals()
+        return {name};
+    }
+
+    async getBalance(address) {
+        console.log("getBalance:", address)
+        if(!this.tokenContract || !address) return '-';
         const sendOption = await this._getUserOption()
-        return await this.tokenContract.methods.balanceOf(addr).call(sendOption)
+        return await this.tokenContract.methods.balanceOf(address).call(sendOption)
     }
 
     async getProof(txHash) {
@@ -53,7 +66,7 @@ class EthBridge {
         }
     }
 
-    async handleHmyProof(proofData) {
+    async handleProof(proofData) {
         let hash = proofData.hash
         let root = proofData.root
         let key = proofData.key
@@ -62,18 +75,36 @@ class EthBridge {
 
         let resp = await this.bridgeContract.methods.ExecProof(hash, root, key, proof)
             .send(options)
-        return resp
+        return resp.transactionHash
     }
 
-    async approve(targetAddr, amount) {
-        const sendOption = await this._getUserOption()
-        await this.tokenContract.methods.approve(targetAddr, amount).send(sendOption)
+    async approve(amount) {
+        const sendOption = await this._getUserOption();
+        const bridgeAddress = this.bridgeContract.options.address;
+        let resp = await this.tokenContract.methods.approve(bridgeAddress, amount).send(sendOption)
+        return resp.transactionHash
     }
 
     async lock(hmyAddr, amount) {
         const sendOption = await this._getUserOption()
         let txn = await this.bridgeContract.methods.RainbowTo(this.tokenAddress, hmyAddr, amount).send(sendOption)
-        return txn.events.Locked.transactionHash
+        return txn.transactionHash
+    }
+
+    async mapReq(tokenAddr){
+        const sendOption = await this._getUserOption()
+        let txn = await this.bridgeContract.methods.CreateRainbow(tokenAddr).send(sendOption)
+        return txn.transactionHash
+    }
+
+    getBridgeSize(){
+        return this.bridgeContract.methods.getRainbowSize().call();
+    }
+
+    async getTokenParisByIndex(index){
+        const erc20 = await this.bridgeContract.methods.LockedTokenList(index).call();
+        const hrc20 = await this.bridgeContract.methods.ThisSideLocked(erc20).call();
+        return {erc20, hrc20}
     }
 
     async _getUserOption() {
