@@ -89,7 +89,8 @@ class HmyBridge {
         let options = {gasPrice: this.gasPrice, gasLimit: this.gasLimit}
         let obj = this.tokenContract.methods.approve(this.bridgeContract.address, amount);
         window.approve = obj;
-        return await obj.send(options)
+        let resp = await obj.send(options)
+        return resp.transaction.id
     }
 
     async lock(ethAddr, amount) {

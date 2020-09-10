@@ -92,6 +92,7 @@
                                         :title="step.title"
                                         :description="step.description"
                                         :icon="index==CrossStep ?'el-icon-loading':''"
+                                        :style="index+1 < StepMessage.length?'height:80px':''"
                                     ></el-step>
                                     <div class="div-swap-step-back">
                                         <el-button
