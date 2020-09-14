@@ -94,15 +94,15 @@
                                         :icon="index==CrossStep ?'el-icon-loading':''"
                                         :style="index+1 < StepMessage.length?'height:80px':''"
                                     ></el-step>
-                                    <div class="div-swap-step-back">
-                                        <el-button
-                                            type="success"
-                                            @click="CrossRunning=false"
-                                            class="btn-back"
-                                            :disabled="CrossStep != 1000"
-                                        >BACK</el-button>
-                                    </div>
                                 </el-steps>
+                                <div class="div-swap-step-back">
+                                    <el-button
+                                        type="success"
+                                        @click="CrossRunning=false"
+                                        class="btn-back"
+                                        :disabled="CrossStep != 1000"
+                                    >BACK</el-button>
+                                </div>
                             </div>
                         </el-card>
                     </el-col>
@@ -144,7 +144,7 @@
                                 >Connect Wallet</el-button>
                                 <div v-if="!isOneWalletInstall">ONE Wallet not found</div>
                             </div>
-                            <div class="div-wallet" style="margin-top: 87px">
+                            <div class="div-wallet" style="margin-top: 133px">
                                 <div class="div-wallet-title">
                                     <img :src="ethLogoSrc" alt="eth" class="img-coin-logo" />
                                     <span class="span-coin-title">Ethereum</span>
@@ -585,8 +585,8 @@ export default {
     padding-bottom: 0px;
 }
 
-.card-swap-form .div-swap-step {
-  min-height: 293px;
+.card-swap-form .div-swap-step .el-steps {
+  min-height: 280px;
 }
 
 .div-swap-step-back {
